@@ -6,9 +6,10 @@ from FreeCAD import Base
 # major axis in x-direction (because Part.Ellipse works that way)
 def makeSpiderLegSegment (baseDiamX = 1.0, baseDiamY = 0.8, 
                           tipDiamX = 0.8, tipDiamY = 0.6,
-                          segLength = 5.0, skinThick = 0.25):
+                          segLength = 5.0, skinThick = 0.25,
+                          name = "segment"):
             
-    # outer shell tapered ellipsoid loft            
+    # outer shell is a tapered ellipsoid loft            
     ellipse1 = Part.Ellipse(Base.Vector(0,0,0), baseDiamX, baseDiamY)
     base1=Part.Wire(Part.Edge(ellipse1))
 
@@ -16,31 +17,29 @@ def makeSpiderLegSegment (baseDiamX = 1.0, baseDiamY = 0.8,
     ellipse2.translate(Base.Vector(0,0,segLength))
     tip1 = Part.Wire(Part.Edge(ellipse2))
 
-    shell = Part.makeLoft([base1, tip1], True)
+    shell = App.ActiveDocument.addObject("Part::Feature", "shell")
+    shell.Shape = Part.makeLoft([base1, tip1], True)
 
-    # hollow core tapered loft
+    # hollow core is a tapered ellipsoid loft
     ellipse3 = Part.Ellipse(Base.Vector(0,0,0), 
            baseDiamX-skinThick, baseDiamY-skinThick)
     base2=Part.Wire(Part.Edge(ellipse3))
-
 
     ellipse4 = Part.Ellipse(Base.Vector(0,0,0), 
                   tipDiamX-skinThick, tipDiamY-skinThick)
     ellipse4.translate(Base.Vector(0,0,segLength))
     tip2 = Part.Wire(Part.Edge(ellipse4))
 
-    core = Part.makeLoft([base2, tip2], True)
+    core = App.ActiveDocument.addObject("Part::Feature", "core")
+    core.Shape = Part.makeLoft([base2, tip2], True)
 
-    # 'show' creates GUI objects from the App objects
-    # necessary for applying Boolean operations
-    Part.show(shell)
-    Part.show(core)
-
-    # Boolean cut core from shell
-    App.ActiveDocument.addObject("Part::Cut", "Segment")
-    App.ActiveDocument.Segment.Base = App.ActiveDocument.Shape
-    App.ActiveDocument.Segment.Tool = App.ActiveDocument.Shape001
+    # Make tube by cutting core from shell
+    App.ActiveDocument.addObject("Part::Cut", name)
+    App.ActiveDocument.ActiveObject.Base = shell 
+    App.ActiveDocument.ActiveObject.Tool = core 
+    
+    # makeSpiderLegSegment done
 
 
-makeSpiderLegSegment()
+makeSpiderLegSegment(name="fred")
 
