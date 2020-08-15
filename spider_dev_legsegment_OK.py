@@ -34,12 +34,15 @@ def makeSpiderLegSegment (baseDiamX = 1.0, baseDiamY = 0.8,
     core.Shape = Part.makeLoft([base2, tip2], True)
 
     # Make tube by cutting core from shell
-    App.ActiveDocument.addObject("Part::Cut", name)
+    legSegment = App.ActiveDocument.addObject("Part::Cut", name)
     App.ActiveDocument.ActiveObject.Base = shell 
     App.ActiveDocument.ActiveObject.Tool = core 
     
-    # makeSpiderLegSegment done
+    return legSegment
 
 
-makeSpiderLegSegment(name="fred")
+fred = makeSpiderLegSegment(name="fred")
+
+fred.Placement = App.Placement(App.Vector(0,0,0), App.Rotation(App.Vector(0,0,1), 90))
+
 
