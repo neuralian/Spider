@@ -38,11 +38,22 @@ def makeSpiderLegSegment (baseDiamX = 1.0, baseDiamY = 0.8,
     App.ActiveDocument.ActiveObject.Base = shell 
     App.ActiveDocument.ActiveObject.Tool = core 
     
+    
+    # core.Document.removeObject("core")
+    # shell.Document.removeObject("shell")
+    
     return legSegment
-
+    
+def resetOrigin(theObjectName):
+ 
+    theObject = App.activeDocument().getObject(theObjectName)
+    App.activeDocument().addObject("Part::Compound","Compound")
+    App.activeDocument().Compound.Links = [theObject,]
+    App.activeDocument().Compound.Label = theObjectName
+    App.ActiveDocument.recompute()
 
 fred = makeSpiderLegSegment(name="fred")
 
 fred.Placement = App.Placement(App.Vector(0,0,0), App.Rotation(App.Vector(0,0,1), 90))
 
-
+resetOrigin("fred")
